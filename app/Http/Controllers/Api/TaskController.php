@@ -5,12 +5,13 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Task;
+use App\Models\User;
 
 class TaskController extends Controller
 {
     public function index()
     {
-        $tasks = Task::paginate(10); 
+        $tasks = Task::where('user_id', auth()->user()->id)->paginate(10);
         return response()->json($tasks);
     }
 
@@ -24,7 +25,14 @@ class TaskController extends Controller
             'status' => 'required|in:pending,completed',
         ]);
        
-        $task = Task::create($request->all());
+
+        $task = Task::create([
+            'user_id' =>  auth()->user()->id,
+            'title' => $request->title,
+            'description' => $request->description,
+            'priority' => $request->priority,
+            'status' => $request->status,
+        ]);
         return response()->json($task, 201);
     }
 
